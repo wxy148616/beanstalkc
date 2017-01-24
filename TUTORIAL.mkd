@@ -1,29 +1,29 @@
 beanstalkc Tutorial
 ===================
 
-Welcome, dear stranger, to a tour de force through beanstalkd's capabilities.
+> Welcome, dear stranger, to a tour de force through beanstalkd's capabilities.
 Say hello to your fellow travel companion, the beanstalkc client library for
 Python. You'll get to know each other fairly well during this trip, so better
 start off on a friendly note. And now, let's go!
 
 
-Getting Started
+> Getting Started
 
 开始
 ---------------
 
-You'll need beanstalkd listening at port 14711 to follow along. So simply start
+> You'll need beanstalkd listening at port 14711 to follow along. So simply start
 it using: `beanstalkd -l 127.0.0.1 -p 14711`
 
 beanstalkd监听14711端口，开启beanstalkd `beanstalkd -l 127.0.0.1 -p 14711`
 
-Besides having beanstalkc installed, you'll typically also need PyYAML. If you
+> Besides having beanstalkc installed, you'll typically also need PyYAML. If you
 insist, you can also use beanstalkc without PyYAML. For more details see
 Appendix A of this tutorial.
 
 安装beanstalkc，通常需要安装PyYAML。 如果你坚持不装，那就不装吧，你也可以使用beanstalkc即使不装PyYAML。更多详细请看教程最后的附录A。
 
-To use beanstalkc we have to import the library and set up a connection to an
+> To use beanstalkc we have to import the library and set up a connection to an
 (already running) beanstalkd server:
 
 使用beanstalkc，必须先import这个库，并建立一条连接到正在运行的beanstalkd server:
@@ -31,7 +31,7 @@ To use beanstalkc we have to import the library and set up a connection to an
     >>> import beanstalkc
     >>> beanstalk = beanstalkc.Connection(host='localhost', port=14711)
 
-If we leave out the `host` and/or `port` parameters, `'localhost'` and `11300`
+> If we leave out the `host` and/or `port` parameters, `'localhost'` and `11300`
 would be used as defaults, respectively. There is also a `connect_timeout`
 parameter which determines how long, in seconds, the socket will wait for the
 server to respond to its initial connection attempt. If it is `None`, then
@@ -42,19 +42,19 @@ there will be no timeout; it defaults to the result of your system's
 如果是`None`, 将会没有时间限制；默认是你系统的`socket.getdefaulttimeout()`。
 
 
-Basic Operation
+> Basic Operation
 
 基础操作
 ---------------
 
-Now that we have a connection set up, we can enqueue jobs:
+> Now that we have a connection set up, we can enqueue jobs:
 
 现在我们建立了一条连接，我们可以入队jobs:
 
     >>> beanstalk.put('hey!')
     1
 
-Or we can request jobs:
+> Or we can request jobs:
 
 或者，我们可以请求jobs:
 
@@ -62,7 +62,7 @@ Or we can request jobs:
     >>> job.body
     'hey!'
 
-Once we are done with processing a job, we have to mark it as done, otherwise
+> Once we are done with processing a job, we have to mark it as done, otherwise
 jobs are re-queued by beanstalkd after a "time to run" (120 seconds, per
 default) is surpassed. A job is marked as done, by calling `delete`:
 
@@ -70,7 +70,7 @@ default) is surpassed. A job is marked as done, by calling `delete`:
 
     >>> job.delete()
 
-`reserve` blocks until a job is ready, possibly forever. If that is not desired,
+> `reserve` blocks until a job is ready, possibly forever. If that is not desired,
 we can invoke `reserve` with a timeout (in seconds) how long we want to wait to
 receive a job. If such a `reserve` times out, it will return `None`:
 
@@ -80,12 +80,12 @@ receive a job. If such a `reserve` times out, it will return `None`:
     >>> beanstalk.reserve(timeout=0) is None
     True
 
-If you use a timeout of 0, `reserve` will immediately return either a job or
+> If you use a timeout of 0, `reserve` will immediately return either a job or
 `None`.
 
 如果你把timeout设为0，`reserve`将会立即返回一个job或者None。
 
-Note that beanstalkc requires job bodies to be strings, conversion to/from
+> Note that beanstalkc requires job bodies to be strings, conversion to/from
 strings is left up to you:
 
 注意, job的bodies是必须是字符串:
@@ -95,7 +95,7 @@ strings is left up to you:
     ...
     AssertionError: Job body must be a str instance
 
-There is no restriction on what characters you can put in a job body, so they
+> There is no restriction on what characters you can put in a job body, so they
 can be used to hold arbitrary binary data:
 
 没有限制放入job body中的是什么字符，因此可以支持任意二进制数据:
@@ -104,18 +104,18 @@ can be used to hold arbitrary binary data:
     >>> job = beanstalk.reserve() ; print(repr(job.body)) ; job.delete()
     '\x00\x01\xfe\xff'
 
-If you want to send images, just `put` the image data as a string. If you want
+> If you want to send images, just `put` the image data as a string. If you want
 to send Unicode text, just use `unicode.encode` to convert it to a string with
 some encoding.
 
 如果你想发送图片，只要将图片转成字符串（比如base64）再`put`就行了。如果你想发送Unicode文本，调用`unicode.encode`加上编码转成string就可以了。
 
-Tube Management
+> Tube Management
 
 Tube管理
 ---------------
 
-A single beanstalkd server can provide many different queues, called "tubes" in
+> A single beanstalkd server can provide many different queues, called "tubes" in
 beanstalkd. To see all available tubes:
 
 单个beanstalkd server可以提供很多不同的队列，在beanstalkd中调用"tubes", 可以看到所有可用的tubes:
@@ -123,7 +123,7 @@ beanstalkd. To see all available tubes:
     >>> beanstalk.tubes()
     ['default']
 
-A beanstalkd client can choose one tube into which its job are put. This is the
+> A beanstalkd client can choose one tube into which its job are put. This is the
 tube "used" by the client. To see what tube you are currently using:
 
 一个beanstalkd client可以选择job放入的tube，来看看你正在使用哪个tube：
@@ -131,7 +131,7 @@ tube "used" by the client. To see what tube you are currently using:
     >>> beanstalk.using()
     'default'
 
-Unless told otherwise, a client uses the 'default' tube. If you want to use a
+> Unless told otherwise, a client uses the 'default' tube. If you want to use a
 different tube:
 
 除非明确告诉它，否则client使用`default`tube, 如果你想使用一个不同的tube:
@@ -141,7 +141,7 @@ different tube:
     >>> beanstalk.using()
     'foo'
 
-If you decide to use a tube, that does not yet exist, the tube is automatically
+> If you decide to use a tube, that does not yet exist, the tube is automatically
 created by beanstalkd:
 
 如果你决心使用一个不存在的tube, beanstalkd会自动创建这个tube：
@@ -149,7 +149,7 @@ created by beanstalkd:
     >>> beanstalk.tubes()
     ['default', 'foo']
 
-Of course, you can always switch back to the default tube. Tubes that don't have
+> Of course, you can always switch back to the default tube. Tubes that don't have
 any client using or watching, vanish automatically:
 
 当然，你随时可以切换回到默认的tube。 没有任何client using或者watching的管道会自动消失：
@@ -161,7 +161,7 @@ any client using or watching, vanish automatically:
     >>> beanstalk.tubes()
     ['default']
 
-Further, a beanstalkd client can choose many tubes to reserve jobs from. These
+> Further, a beanstalkd client can choose many tubes to reserve jobs from. These
 tubes are "watched" by the client. To see what tubes you are currently watching:
 
 更进一步，一个beanstalkd client可以选择从很多tubes来reserve jobs， 这些tubes被client "watched", 来看看你正在watching哪些tubes:
@@ -169,7 +169,7 @@ tubes are "watched" by the client. To see what tubes you are currently watching:
     >>> beanstalk.watching()
     ['default']
 
-To watch an additional tube:
+> To watch an additional tube:
 
 watch额外的tube:
 
@@ -178,7 +178,7 @@ watch额外的tube:
     >>> beanstalk.watching()
     ['default', 'bar']
 
-As before, tubes that do not yet exist are created automatically once you start
+> As before, tubes that do not yet exist are created automatically once you start
 watching them:
 
 像之前一样，一旦你watching一个不存在的tube, 这个tube会被自动创建：
@@ -186,7 +186,7 @@ watching them:
     >>> beanstalk.tubes()
     ['default', 'bar']
 
-To stop watching a tube:
+> To stop watching a tube:
 
 停止watching一个tube:
 
@@ -195,7 +195,7 @@ To stop watching a tube:
     >>> beanstalk.watching()
     ['default']
 
-You can't watch zero tubes. So if you try to ignore the last tube you are
+> You can't watch zero tubes. So if you try to ignore the last tube you are
 watching, this is silently ignored:
 
 你不能watch 0个tube, 因此，如果你尝试ignore最后一个你在watching的tube, 这将会默默的被忽略掉:
@@ -205,7 +205,7 @@ watching, this is silently ignored:
     >>> beanstalk.watching()
     ['default']
 
-To recap: each beanstalkd client manages two separate concerns: which tube
+> To recap: each beanstalkd client manages two separate concerns: which tube
 newly created jobs are put into, and which tube(s) jobs are reserved from.
 Accordingly, there are two separate sets of functions for these concerns:
 
@@ -219,18 +219,18 @@ Accordingly, there are two separate sets of functions for these concerns:
   - `use` 和 `using` 影响着 job `put`到哪里
   - `watch` 和 `watching` 控制jobs从哪里`reserve`d
 
-Note that these concerns are fully orthogonal: for example, when you `use` a
+> Note that these concerns are fully orthogonal: for example, when you `use` a
 tube, it is not automatically `watch`ed. Neither does `watch`ing a tube affect
 the tube you are `using`.
 
 注意：这些关注点是完全正交的：例如，当你`use`一个tube, 它不会自动被`watch`ed。当你使用`using`的时候也不会`watch`ing一个tube。
 
-Statistics
+> Statistics
 
 统计
 ----------
 
-Beanstalkd accumulates various statistics at the server, tube and job level.
+> Beanstalkd accumulates various statistics at the server, tube and job level.
 Statistical details for a job can only be retrieved during the job's lifecycle.
 So let's create another job:
 
@@ -241,7 +241,7 @@ Beanstalkd在server中积聚着各种tube和job级别的统计数据。job的统
 
     >>> job = beanstalk.reserve()
 
-Now we retrieve job-level statistics:
+> Now we retrieve job-level statistics:
 
 现在，我们取到了job-level的统计数据：
 
@@ -255,7 +255,7 @@ Now we retrieve job-level statistics:
      ...
      'tube': 'default'}
 
-If you try to access job stats after the job was deleted, you'll get a
+> If you try to access job stats after the job was deleted, you'll get a
 `CommandFailed` exception:
 
 如果你在job被deleted之后，尝试获取job stats，你将会得到一个`CommandFailed`异常：
@@ -265,7 +265,7 @@ If you try to access job stats after the job was deleted, you'll get a
     Traceback (most recent call last):
     CommandFailed: ('stats-job', 'NOT_FOUND', [])
 
-Let's have a look at some numbers for the `'default'` tube:
+> Let's have a look at some numbers for the `'default'` tube:
 
 让我们来看看一些`default`tube的数据：
 
@@ -278,7 +278,7 @@ Let's have a look at some numbers for the `'default'` tube:
      'name': 'default',
      ...}
 
-Finally, there's an abundant amount of server-level statistics accessible via
+> Finally, there's an abundant amount of server-level statistics accessible via
 the `Connection`'s `stats` method. We won't go into details here, but:
 
 最后，通过调用`Connection`的`stats`方法，可以获取大量的server-level的统计数据。我们在这里就不细说了，但是：
@@ -294,12 +294,12 @@ the `Connection`'s `stats` method. We won't go into details here, but:
      ...}
 
 
-Advanced Operation
+> Advanced Operation
 
 高级操作
 ------------------
 
-In "Basic Operation" above, we discussed the typical lifecycle of a job:
+> In "Basic Operation" above, we discussed the typical lifecycle of a job:
 
 在上文的"基础操作"中，我们讨论了job的典型的生命周期：
 
@@ -312,7 +312,7 @@ In "Basic Operation" above, we discussed the typical lifecycle of a job:
     distribution.) #doctest:+SKIP
     (这个图片是从beanstalkd协议文档中拿的，它本来包含在`protocal.txt`中)
 
-But besides `ready` and `reserved`, a job can also be `delayed` or `buried`.
+> But besides `ready` and `reserved`, a job can also be `delayed` or `buried`.
 Along with those states come a few transitions, so the full picture looks like
 the following:
 
@@ -342,7 +342,7 @@ the following:
       originally contained in `protocol.txt`, part of the beanstalkd
       distribution.) #doctest:+SKIP
 
-Now let's have a practical look at those new possibilities. For a start, we can
+> Now let's have a practical look at those new possibilities. For a start, we can
 create a job with a delay. Such a job will only be available for reservation
 once this delay passes:
 
@@ -358,7 +358,7 @@ once this delay passes:
     >>> job.body
     'yes!'
 
-If we are not interested in a job anymore (e.g. after we failed to
+> If we are not interested in a job anymore (e.g. after we failed to
 process it), we can simply release the job back to the tube it came from:
 
 如果我们对job不感兴趣（比如，处理失败），我们可以简单的释放这个job回 它来的那个tube:
@@ -367,7 +367,7 @@ process it), we can simply release the job back to the tube it came from:
     >>> job.stats()['state']
     'ready'
 
-Want to get rid of a job? Well, just "bury" it! A buried job is put aside and is
+> Want to get rid of a job? Well, just "bury" it! A buried job is put aside and is
 therefore not available for reservation anymore:
 
 想要除去一个job? 只需"bury"它！一个buried job被放在旁边，并且因此不会为了预留而获得：
@@ -380,7 +380,7 @@ therefore not available for reservation anymore:
     >>> beanstalk.reserve(timeout=0) is None
     True
 
-Buried jobs are maintained in a special FIFO-queue outside of the normal job
+> Buried jobs are maintained in a special FIFO-queue outside of the normal job
 processing lifecycle until they are kicked alive again:
 
 Buried jobs被维护在 正常job处理生命周期的外部 一个特别的 FIFO-queue中，直到他们被再次kicked alive：
@@ -388,7 +388,7 @@ Buried jobs被维护在 正常job处理生命周期的外部 一个特别的 FIF
     >>> beanstalk.kick()
     1
 
-You can request many jobs to be kicked alive at once, `kick`'s return value will
+> You can request many jobs to be kicked alive at once, `kick`'s return value will
 tell you how many jobs were actually kicked alive again:
 
 你可以同时请求很多jobs来kicked alive，`kick`返回的值将告诉你有多少jobs被实际kicked alive：
@@ -396,7 +396,7 @@ tell you how many jobs were actually kicked alive again:
     >>> beanstalk.kick(42)
     0
 
-If you still have a handle to a job (or know its job ID), you can also kick
+> If you still have a handle to a job (or know its job ID), you can also kick
 alive this particular job, overriding the FIFO operation of the burial queue:
 
 如果你仍持有一个job的句柄(或者知道它的job ID), 你也可以kick alive这个特别的job, 覆盖burial queue的FIFO操作：
@@ -417,7 +417,7 @@ Inspecting Jobs
 检查jobs
 ---------------
 
-Besides reserving jobs, a client can also "peek" at jobs. This allows to inspect
+> Besides reserving jobs, a client can also "peek" at jobs. This allows to inspect
 jobs without modifying their state. If you know the `id` of a job you're
 interested, you can directly peek at the job. We still have job #4 hanging
 around from our previous examples, so:
@@ -428,21 +428,21 @@ around from our previous examples, so:
     >>> job.body
     'yes!'
 
-Note that this peek did *not* reserve the job:
+> Note that this peek did *not* reserve the job:
 
 注意那是peek，不是reserve job
 
     >>> job.stats()['state']
     'ready'
 
-If you try to peek at a non-existing job, you'll simply see nothing:
+> If you try to peek at a non-existing job, you'll simply see nothing:
 
 如果你尝试peek at 一个不存在job，你将不会看到任何东西：
 
     >>> beanstalk.peek(42) is None
     True
 
-If you are not interested in a particular job, but want to see jobs according to
+> If you are not interested in a particular job, but want to see jobs according to
 their state, beanstalkd also provides a few commands. To peek at the same job
 that would be returned by `reserve` -- the next ready job -- use `peek-ready`:
 
@@ -452,7 +452,7 @@ that would be returned by `reserve` -- the next ready job -- use `peek-ready`:
     >>> job.body
     'yes!'
 
-Note that you can't release, or bury a job that was not reserved by you. Those
+> Note that you can't release, or bury a job that was not reserved by you. Those
 requests on unreserved jobs are silently ignored:
 
 注意你不能release或者bury一个job，因为它不是通过你reserved的。那些在unreserved jobs上的请求会被默默的忽略掉：
@@ -463,7 +463,7 @@ requests on unreserved jobs are silently ignored:
     >>> job.stats()['state']
     'ready'
 
-You can, though, delete a job that was not reserved by you:
+> You can, though, delete a job that was not reserved by you:
 
 但是，你可以删除一个 不是通过你 reserved的job：
 
@@ -472,7 +472,7 @@ You can, though, delete a job that was not reserved by you:
     Traceback (most recent call last):
     CommandFailed: ('stats-job', 'NOT_FOUND', [])
 
-Finally, you can also peek into the special queues for jobs that are delayed:
+> Finally, you can also peek into the special queues for jobs that are delayed:
 
 最后，你也可以peek into 特殊的delayed队列:
 
@@ -493,12 +493,12 @@ Finally, you can also peek into the special queues for jobs that are delayed:
     'buried'
 
 
-Job Priorities
+> Job Priorities
 
 job优先级
 --------------
 
-Without job priorities, beanstalkd operates as a FIFO queue:
+> Without job priorities, beanstalkd operates as a FIFO queue:
 
 没有job优先级的话，beanstalkd操作是一个FIFO队列
 
@@ -510,7 +510,7 @@ Without job priorities, beanstalkd operates as a FIFO queue:
     >>> job = beanstalk.reserve() ; print(job.body) ; job.delete()
     2
 
-If need arises, you can override this behaviour by giving different jobs
+> If need arises, you can override this behaviour by giving different jobs
 different priorities. There are three hard facts to know about job priorities:
 
 如果需要，你可以覆盖这种行为通过给不同的job不同的优先级。有三个关于job优先级的事实需要知道：
@@ -528,7 +528,7 @@ different priorities. There are three hard facts to know about job priorities:
   2. beanstalkd优先急是 32位 无符号整形（0-2*＊32－1）。
   3. beanstalkc 使用 2*＊31作为默认的job优先级 (`beanstalkc.DEFAULT_PRIORITY`)。
 
-To create a job with a custom priority, use the keyword-argument `priority`:
+> To create a job with a custom priority, use the keyword-argument `priority`:
 
 使用定制的优先级来创建一个job，使用keyword-argument `priority`:
 
@@ -543,21 +543,21 @@ To create a job with a custom priority, use the keyword-argument `priority`:
     >>> job = beanstalk.reserve() ; print(job.body) ; job.delete()
     foo
 
-Note how `'bar'` and `'qux'` left the queue before `'foo'`, even though they
+> Note how `'bar'` and `'qux'` left the queue before `'foo'`, even though they
 were enqueued well after `'foo'`. Note also that within the same priority jobs
 are still handled in a FIFO manner.
 
 注意 `'bar'`和`'qux'`在`'foo'`前出队，尽管他们在`'foo'`后入队。注意，相同优先级的job仍然是按照FIFO的处理方式。
 
 
-Fin!
+> Fin!
 
 结！
 ----
 
     >>> beanstalk.close()
 
-That's it, for now. We've left a few capabilities untouched (touch and
+> That's it, for now. We've left a few capabilities untouched (touch and
 time-to-run). But if you've really read through all of the above, send me a
 message and tell me what you think of it. And then go get yourself a treat. You
 certainly deserve it.
@@ -565,12 +565,12 @@ certainly deserve it.
 目前来说，就这样吧。我们留下一些未提到的功能(touch and time-to-run)。但是如果你确实将上面的读完了，给我发送信息吧...
 
 
-Appendix A: beanstalkc and YAML
+> Appendix A: beanstalkc and YAML
 
 附录A: beanstalkc 和 YAML
 -------------------------------
 
-As beanstalkd uses YAML for diagnostic information (like the results of
+> As beanstalkd uses YAML for diagnostic information (like the results of
 `stats()` or `tubes()`), you'll typically need [PyYAML](). Depending on your
 performance needs, you may want to supplement that with the [libyaml]() C
 extension.
@@ -580,7 +580,7 @@ beanstalkd使用YAML为了诊断信息（像是`stats()`或者`tubes()`的结果
 [PyYAML]: http://pyyaml.org/
 [libyaml]: http://pyyaml.org/wiki/LibYAML
 
-If, for whatever reason, you cannot use PyYAML, you can still use beanstalkc
+> If, for whatever reason, you cannot use PyYAML, you can still use beanstalkc
 and just leave the YAML responses unparsed. To do that, pass `parse_yaml=False`
 when creating the `Connection`:
 
@@ -598,13 +598,13 @@ when creating the `Connection`:
 
     >>> beanstalk.close()
 
-This possibility is mostly useful if you don't use the introspective
+> This possibility is mostly useful if you don't use the introspective
 capabilities of beanstalkd (`Connection#tubes`, `Connection#watching`,
 `Connection#stats`, `Connection#stats_tube`, and `Job#stats`).
 
 这个可能是最有用的，如果你不使用beanstalkd自带的能力(`Connection#tubes`, `Connection#watching`, `Connection#stats`, `Connection#stats_tube`, and `Job#stats`)
 
-Alternatively, you can also pass a function to be used as YAML parser:
+> Alternatively, you can also pass a function to be used as YAML parser:
 
 可选的，你也可以用一个函数来解析，就像是YAML解析一样：
 
@@ -620,6 +620,6 @@ Alternatively, you can also pass a function to be used as YAML parser:
 
     >>> beanstalk.close()
 
-This should come in handy if PyYAML simply does not fit your needs.
+> This should come in handy if PyYAML simply does not fit your needs.
 
 这应该是很方便的，如果PyYAML不适应你的需求。
